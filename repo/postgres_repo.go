@@ -1,26 +1,30 @@
-package main
+package repo
 
 import (
 	"database/sql"
 	"errors"
 )
 
+// PostgresRepo - репозиторий базы данных PostgresQL
 type PostgresRepo struct {
 	db *sql.DB
 }
 
+// Ошибки при получении пустых значений
 var (
 	ErrNumberIsNull       = errors.New("increment value is null in storage")
 	ErrMaximumValueIsNull = errors.New("maximum value is null in storage")
 	ErrStepValueIsNull    = errors.New("step value is null in storage")
 )
 
+// Конструктор репозитория
 func NewPostgresRepo(dbConn *DbConnection) *PostgresRepo {
 	return &PostgresRepo{
 		db: dbConn.db,
 	}
 }
 
+// Методы, имплементирующие интерфейс Repo
 func (repo *PostgresRepo) GetNumber() (int64, error) {
 	query := "SELECT num FROM incrementer"
 	row := repo.db.QueryRow(query)
@@ -93,4 +97,13 @@ func (repo *PostgresRepo) SetParams(maximumValue, stepValue int64) error {
 	}
 	return nil
 
+}
+
+func (repo *PostgresRepo) SetMaximumValueAndZeroNumber(maximumValue int64) error {
+	query := "UPDATE incrementer SET maximum_value = $1, num = $2"
+	_, err := repo.db.Exec(query, maximumValue, 0)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"context"
@@ -6,34 +6,6 @@ import (
 	"google.golang.org/grpc"
 	"testing"
 )
-
-/*func TestClient(t *testing.T) {
-	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
-	}
-
-	conn, err := grpc.Dial("127.0.0.1:8080", opts...)
-
-	if err != nil {
-		t.Fatalf("fail to dial: %v", err)
-	}
-
-	defer conn.Close()
-
-	client := NewIncrementerClient(conn)
-	empty := &Empty{}
-	response, err := client.IncrementNumber(context.Background(), empty)
-	if err != nil {
-		t.Fatalf("fail to dial: %v", err)
-	}
-	t.Logf("response: %v", response.Status)
-
-	number, err := client.GetNumber(context.Background(), empty)
-	if err != nil {
-		t.Fatalf("fail to dial: %v", err)
-	}
-	t.Errorf("response: %v", number.Num)
-}*/
 
 func TestClient2(t *testing.T) {
 	opts := []grpc.DialOption{

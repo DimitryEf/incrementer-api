@@ -40,7 +40,6 @@ DRY (включая использование качественных Open Sou
 Общая читабельность и простота кода.
 Отсутствие переусложнения. Хороший код != сложная, навороченная архитектура. Сложность ревью кода -- большой минус.
 */
-
 package main
 
 //TODO Сделать DI руками, сделать тесты, а уже потом юзать уберовский dig
@@ -51,36 +50,7 @@ package main
 //protoc --go_out=plugins=grpc:. incrementer.proto
 
 func main() {
-	logger := NewLogger()
-	config := NewConfig(logger)
-	db, err := NewDbConnection(config)
-	if err != nil {
-		logger.Log.Fatal(err)
-	}
-	repo := NewPostgresRepo(db)
-	inc := NewIncrementer(repo)
-	api := NewGrpcApi(inc)
-	server := NewGrpcServer(config, api)
-	go server.Run()
-	server.ReadyToStop()
 
+	// Запуск приложения
+	container.Execute()
 }
-
-/*func CatchSIG(config *Config, server *Server) {
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM) // Отлавливаем в канал interrupt сигналы os.Interrupt и syscall.SIGTERM
-
-	<-interrupt // Здесь исполнение кода блокируется, пока не не будет получен сигнал ОС
-
-	config.Log.Log.Info("Stopping server...")
-
-	//Устанавливаем контекст с таймаутом для принудительного завершения работы сервера
-	timeout, cancelFunc := context.WithTimeout(context.Background(), m.ShutdownTimeout)
-	defer cancelFunc()
-	err := server.HttpServer.Shutdown(timeout) // Функция Shutdown стандартного пакета http обеспечивает graceful shutdown
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	config.Log.Log.Info("The server stopped.")
-}*/

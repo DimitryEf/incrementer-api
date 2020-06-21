@@ -1,38 +1,40 @@
-package main
+package usecase
 
 import (
 	"errors"
 )
 
-// Вычисляем максимальное значение типа int для данной архитектуры платформы
-// ^uint(0) - максимальное значение uint побитово сдвигаем вправо для бита под знак
-const MaximumInt = int64(^uint64(0) >> 1)
+// Вычисляем максимальное значение типа int64
+const MaximumInt64 = int64(^uint64(0) >> 1)
 
-// Ошибка при установке отрицательно значения максимума
+// Ошибки недопустимых значений
 var (
-	ErrNegativeMaximumValue     = errors.New("the maximum value of increment must be a non negative number")
-	ErrNegativeStepValue        = errors.New("the step value of increment must be a non negative number")
+	// Ошибка при попытке установить отрицательное максимальное значение
+	ErrNegativeMaximumValue = errors.New("the maximum value of increment must be a non negative number")
+	// Ошибка при попытке установить отрицательное значение для шага инкремента
+	ErrNegativeStepValue = errors.New("the step value of increment must be a non negative number")
+	// Ошибка в ситуации, когда максимальное значение меньше шага инкремента
 	ErrMaximumLessThenStepValue = errors.New("the maximum value of increment must be bigger then step value")
 )
 
-// Объявляем неэкспортируемую структуру increment, которая реализует интерфейс Incrementor
+// Incrementor - структура, содержащая в себе бизнес-логику работы инкрементора
 type Incrementer struct {
 	Repo Repo
 }
 
-// NewIncrementor - конструктор объекта increment с параметрами по умолчанию, реализующего интерфейс Incrementor.
+// NewIncrementor - конструктор объекта Incrementor, принимает в себя интерфейс репозитория.
 func NewIncrementer(repo Repo) *Incrementer {
 	return &Incrementer{
 		Repo: repo,
 	}
 }
 
-// Возвращает текущее число
+// GetNumber - возвращает текущее число
 func (inc *Incrementer) GetNumber() (int64, error) {
 	return inc.Repo.GetNumber()
 }
 
-// Увеличивает число
+// IncrementNumber - увеличивает число
 func (inc *Incrementer) IncrementNumber() error {
 	p, err := inc.Repo.GetParams()
 	if err != nil {
@@ -48,6 +50,7 @@ func (inc *Incrementer) IncrementNumber() error {
 		return nil
 	}
 
+	// Устанавливаем значение
 	err = inc.Repo.SetNumber(p.Number + p.StepValue)
 	if err != nil {
 		return err
@@ -55,39 +58,34 @@ func (inc *Incrementer) IncrementNumber() error {
 	return nil
 }
 
-// Устанавливает максимальное число
+// SetMaximumValue - устанавливает максимальное число
 func (inc *Incrementer) SetMaximumValue(maximumValue int64) error {
 	// Проверяем, чтобы maximumValue было неотрицательным, иначе возвращаем ошибку.
-	// Отсутствие проверки maximumValue > MaximumInt обусловлено тем, что сам компилятор не допустит
-	// переполнения int и выдаст ошибку - overflows int
 	if maximumValue < 0 {
 		return ErrNegativeMaximumValue
 	}
-	// Используем mutex для блокировки доступа к объекту из других вызовов метода,
-	// пока не будет установлено новое значение
 
+	// Получаем актуальные параметры инкрементора
 	p, err := inc.Repo.GetParams()
 	if err != nil {
 		return err
 	}
 
+	// Проверяем, чтоб максимум был больше значения шага инкрементора
 	if maximumValue < p.StepValue {
 		return ErrMaximumLessThenStepValue
 	}
 
 	// Если при смене максимального значения число начинает превышать данное  максимальное значение, то число обнуляется
 	if p.Number > p.MaximumValue {
-		err = inc.Repo.SetMaximumValue(maximumValue)
-		if err != nil {
-			return err
-		}
-		err = inc.Repo.SetNumber(0)
+		err = inc.Repo.SetMaximumValueAndZeroNumber(maximumValue)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
 
+	// Устанавливаем максимальное значение
 	err = inc.Repo.SetMaximumValue(maximumValue)
 	if err != nil {
 		return err
@@ -97,20 +95,24 @@ func (inc *Incrementer) SetMaximumValue(maximumValue int64) error {
 	return nil
 }
 
+// SetStepValue - устанавливает значение шага инкрементора
 func (inc *Incrementer) SetStepValue(stepValue int64) error {
 	if stepValue < 0 {
 		return ErrNegativeStepValue
 	}
 
+	// Получаем параметры
 	p, err := inc.Repo.GetParams()
 	if err != nil {
 		return err
 	}
 
+	// Проверяем, чтоб максимум был больше значения шага инкрементора
 	if stepValue > p.MaximumValue {
 		return ErrMaximumLessThenStepValue
 	}
 
+	// Устанавливаем значение шага инкрементора
 	err = inc.Repo.SetStepValue(stepValue)
 	if err != nil {
 		return err
@@ -118,7 +120,9 @@ func (inc *Incrementer) SetStepValue(stepValue int64) error {
 	return nil
 }
 
+// SetParams - установка параметров инкрементра: максимальное значение и шаг инкрементора
 func (inc *Incrementer) SetParams(maximumValue, stepValue int64) error {
+	// Проверка входных параметров
 	if maximumValue < stepValue {
 		return ErrMaximumLessThenStepValue
 	}
@@ -129,11 +133,13 @@ func (inc *Incrementer) SetParams(maximumValue, stepValue int64) error {
 		return ErrNegativeStepValue
 	}
 
+	// Получение значения
 	num, err := inc.Repo.GetNumber()
 	if err != nil {
 		return err
 	}
 
+	// Проверка значения по отношению к максимуму
 	if num > maximumValue {
 		err = inc.Repo.SetParams(maximumValue, stepValue)
 		if err != nil {
@@ -145,6 +151,8 @@ func (inc *Incrementer) SetParams(maximumValue, stepValue int64) error {
 		}
 		return nil
 	}
+
+	// Установка параметров
 	err = inc.Repo.SetParams(maximumValue, stepValue)
 	if err != nil {
 		return err
