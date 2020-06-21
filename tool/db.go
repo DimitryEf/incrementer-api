@@ -2,13 +2,14 @@ package tool
 
 import (
 	"database/sql"
+	"github.com/DimitryEf/incrementer-api/config"
 	_ "github.com/lib/pq"
 	"sync"
 )
 
 // DbConnection - синглтон подключения к базе данных
 type DbConnection struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 var (
@@ -16,7 +17,10 @@ var (
 	once     sync.Once // Гарантирует однократность вызова функции
 )
 
-func NewDbConnection(config *Config) (*DbConnection, error) {
+// Вычисляем максимальное значение типа int64
+const MaximumInt64 = int64(^uint64(0) >> 1)
+
+func NewDbConnection(config *config.Config) (*DbConnection, error) {
 
 	var err error
 	var db *sql.DB
@@ -53,7 +57,7 @@ func NewDbConnection(config *Config) (*DbConnection, error) {
 			VALUES ($1, $2, $3)`, 0, MaximumInt64, 1)
 		}
 		instance = &DbConnection{
-			db: db,
+			DB: db,
 		}
 	})
 	return instance, err

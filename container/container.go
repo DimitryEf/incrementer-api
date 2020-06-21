@@ -1,6 +1,12 @@
 package container
 
 import (
+	"github.com/DimitryEf/incrementer-api/api"
+	"github.com/DimitryEf/incrementer-api/config"
+	"github.com/DimitryEf/incrementer-api/repo"
+	"github.com/DimitryEf/incrementer-api/server"
+	"github.com/DimitryEf/incrementer-api/tool"
+	"github.com/DimitryEf/incrementer-api/usecase"
 	"go.uber.org/dig"
 	"os"
 )
@@ -11,13 +17,13 @@ func BuildContainer() *dig.Container {
 	container := dig.New()
 
 	// Устанавливаем зависимости
-	exitIfErr(container.Provide(NewLogger))
-	exitIfErr(container.Provide(NewConfig))
-	exitIfErr(container.Provide(NewDbConnection))
-	exitIfErr(container.Provide(NewPostgresRepo))
-	exitIfErr(container.Provide(NewIncrementer))
-	exitIfErr(container.Provide(NewGrpcApi))
-	exitIfErr(container.Provide(NewServer))
+	exitIfErr(container.Provide(config.NewLogger))
+	exitIfErr(container.Provide(config.NewConfig))
+	exitIfErr(container.Provide(tool.NewDbConnection))
+	exitIfErr(container.Provide(repo.NewPostgresRepo))
+	exitIfErr(container.Provide(usecase.NewIncrementer))
+	exitIfErr(container.Provide(api.NewGrpcApi))
+	exitIfErr(container.Provide(server.NewServer))
 
 	return container
 }
@@ -35,7 +41,7 @@ func Execute() {
 	container := BuildContainer()
 
 	exitIfErr(container.Invoke(
-		func(server *Server) {
+		func(server *server.Server) {
 			go server.Run()
 			server.ReadyToStop() // Отслеживание сигналов OS для Graceful shutdown
 		}))

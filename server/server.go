@@ -1,6 +1,8 @@
 package server
 
 import (
+	"github.com/DimitryEf/incrementer-api/api"
+	"github.com/DimitryEf/incrementer-api/config"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -14,13 +16,13 @@ import (
 
 // Server - структура gRPC-сервера инкрементора
 type Server struct {
-	config *Config
-	api    *Api
+	config *config.Config
+	api    *api.Api
 	server *grpc.Server
 }
 
 // NewServer - конструктор gRPC-сервера
-func NewServer(config *Config, api *Api) *Server {
+func NewServer(config *config.Config, api *api.Api) *Server {
 	return &Server{
 		config: config,
 		api:    api,
@@ -43,7 +45,7 @@ func (s *Server) Run() {
 				))))
 
 	// Регистрация АПИ сервера
-	RegisterIncrementerServer(s.server, s.api)
+	api.RegisterIncrementerServer(s.server, s.api)
 
 	// Запуск сервера
 	err = s.server.Serve(lis)

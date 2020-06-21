@@ -49,6 +49,8 @@ package main
 
 //protoc --go_out=plugins=grpc:. incrementer.proto
 
+import "github.com/DimitryEf/incrementer-api/container"
+
 func main() {
 
 	// Запуск приложения

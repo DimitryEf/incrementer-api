@@ -2,10 +2,8 @@ package usecase
 
 import (
 	"errors"
+	"github.com/DimitryEf/incrementer-api/repo"
 )
-
-// Вычисляем максимальное значение типа int64
-const MaximumInt64 = int64(^uint64(0) >> 1)
 
 // Ошибки недопустимых значений
 var (
@@ -19,11 +17,11 @@ var (
 
 // Incrementor - структура, содержащая в себе бизнес-логику работы инкрементора
 type Incrementer struct {
-	Repo Repo
+	Repo repo.Repo
 }
 
 // NewIncrementor - конструктор объекта Incrementor, принимает в себя интерфейс репозитория.
-func NewIncrementer(repo Repo) *Incrementer {
+func NewIncrementer(repo repo.Repo) *Incrementer {
 	return &Incrementer{
 		Repo: repo,
 	}

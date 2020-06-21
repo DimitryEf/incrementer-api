@@ -3,6 +3,8 @@ package repo
 import (
 	"database/sql"
 	"errors"
+	"github.com/DimitryEf/incrementer-api/model"
+	"github.com/DimitryEf/incrementer-api/tool"
 )
 
 // PostgresRepo - репозиторий базы данных PostgresQL
@@ -18,9 +20,9 @@ var (
 )
 
 // Конструктор репозитория
-func NewPostgresRepo(dbConn *DbConnection) *PostgresRepo {
+func NewPostgresRepo(dbConn *tool.DbConnection) *PostgresRepo {
 	return &PostgresRepo{
-		db: dbConn.db,
+		db: dbConn.DB,
 	}
 }
 
@@ -47,24 +49,24 @@ func (repo *PostgresRepo) SetNumber(num int64) error {
 	return nil
 }
 
-func (repo *PostgresRepo) GetParams() (Params, error) {
+func (repo *PostgresRepo) GetParams() (model.Params, error) {
 	query := "SELECT num, maximum_value, step_value FROM incrementer"
 	row := repo.db.QueryRow(query)
 	var num, max, step sql.NullInt64
 	if err := row.Scan(&num, &max, &step); err != nil {
-		return Params{}, err
+		return model.Params{}, err
 	}
 	if !num.Valid {
-		return Params{}, ErrNumberIsNull
+		return model.Params{}, ErrNumberIsNull
 	}
 	if !max.Valid {
-		return Params{}, ErrMaximumValueIsNull
+		return model.Params{}, ErrMaximumValueIsNull
 	}
 	if !step.Valid {
-		return Params{}, ErrStepValueIsNull
+		return model.Params{}, ErrStepValueIsNull
 	}
 
-	return Params{
+	return model.Params{
 		Number:       num.Int64,
 		MaximumValue: max.Int64,
 		StepValue:    step.Int64,

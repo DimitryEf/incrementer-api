@@ -1,14 +1,17 @@
 package api
 
-import "context"
+import (
+	"context"
+	"github.com/DimitryEf/incrementer-api/usecase"
+)
 
 // Api структура с rpc-хендлерами
 type Api struct {
-	Inc *Incrementer
+	Inc *usecase.Incrementer
 }
 
 // NewGrpcApi - конструктор для Api структуры
-func NewGrpcApi(inc *Incrementer) *Api {
+func NewGrpcApi(inc *usecase.Incrementer) *Api {
 	return &Api{
 		Inc: inc,
 	}
