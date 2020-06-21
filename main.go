@@ -48,6 +48,8 @@ package main
 
 //TODO переделать после ручных тестов на gRPC
 
+//protoc --go_out=plugins=grpc:. incrementer.proto
+
 func main() {
 	logger := NewLogger()
 	config := NewConfig(logger)

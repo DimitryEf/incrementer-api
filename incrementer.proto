@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package incrementer;
+package main;
 
 service Incrementer {
-    rpc GetNumber(Request) returns (Response) {}
-    rpc IncrementNumber(Request) returns (Response) {}
-    rpc SetParams(Request) returns (Response) {}
+    rpc GetNumber(Empty) returns (Response) {}
+    rpc IncrementNumber(Empty) returns (Empty) {}
+    rpc SetParams(Request) returns (Empty) {}
 }
 
 message Request {
@@ -17,4 +17,7 @@ message Response {
     int64 num = 1;
 }
 
+message Empty {
+    bool status = 1;
+}
 
