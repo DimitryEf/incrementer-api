@@ -38,25 +38,25 @@ func exitIfErr(err error) {
 
 //Execute - проведение зависимостей и запуск сервера
 func Execute() {
-	container := BuildContainer()
+	/*container := BuildContainer()
 
 	exitIfErr(container.Invoke(
 		func(server *server.Server) {
 			go server.Run()
 			server.ReadyToStop() // Отслеживание сигналов OS для Graceful shutdown
-		}))
+		}))*/
 
 	// DI вручную, без использования dig
-	/*logger := NewLogger()
-	config := NewConfig(logger)
-	db, err := NewDbConnection(config)
+	logger := config.NewLogger()
+	config := config.NewConfig(logger)
+	db, err := tool.NewDbConnection(config)
 	if err != nil {
 		logger.Log.Fatal(err)
 	}
-	repo := NewPostgresRepo(db)
-	inc := NewIncrementer(repo)
-	api := NewGrpcApi(inc)
-	server := NewServer(config, api)
+	repo := repo.NewPostgresRepo(db)
+	inc := usecase.NewIncrementer(repo)
+	api := api.NewGrpcApi(inc)
+	server := server.NewServer(config, api)
 	go server.Run()
-	server.ReadyToStop()*/
+	server.ReadyToStop()
 }

@@ -48,6 +48,7 @@ func (s *Server) Run() {
 	api.RegisterIncrementerServer(s.server, s.api)
 
 	// Запуск сервера
+	s.config.Logger.Log.Infof("Starting server on %s...", s.config.Port)
 	err = s.server.Serve(lis)
 	if err != nil {
 		s.config.Logger.Log.Fatal(err)

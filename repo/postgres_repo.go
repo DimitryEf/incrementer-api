@@ -9,7 +9,7 @@ import (
 
 // PostgresRepo - репозиторий базы данных PostgresQL
 type PostgresRepo struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 // Ошибки при получении пустых значений
@@ -22,14 +22,14 @@ var (
 // Конструктор репозитория
 func NewPostgresRepo(dbConn *tool.DbConnection) *PostgresRepo {
 	return &PostgresRepo{
-		db: dbConn.DB,
+		DB: dbConn.DB,
 	}
 }
 
 // Методы, имплементирующие интерфейс Repo
 func (repo *PostgresRepo) GetNumber() (int64, error) {
 	query := "SELECT num FROM incrementer"
-	row := repo.db.QueryRow(query)
+	row := repo.DB.QueryRow(query)
 	var num sql.NullInt64
 	if err := row.Scan(&num); err != nil {
 		return 0, err
@@ -42,7 +42,7 @@ func (repo *PostgresRepo) GetNumber() (int64, error) {
 
 func (repo *PostgresRepo) SetNumber(num int64) error {
 	query := "UPDATE incrementer SET num = $1"
-	_, err := repo.db.Exec(query, num)
+	_, err := repo.DB.Exec(query, num)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (repo *PostgresRepo) SetNumber(num int64) error {
 
 func (repo *PostgresRepo) GetParams() (model.Params, error) {
 	query := "SELECT num, maximum_value, step_value FROM incrementer"
-	row := repo.db.QueryRow(query)
+	row := repo.DB.QueryRow(query)
 	var num, max, step sql.NullInt64
 	if err := row.Scan(&num, &max, &step); err != nil {
 		return model.Params{}, err
@@ -75,7 +75,7 @@ func (repo *PostgresRepo) GetParams() (model.Params, error) {
 
 func (repo *PostgresRepo) SetMaximumValue(maximumValue int64) error {
 	query := "UPDATE incrementer SET maximum_value = $1"
-	_, err := repo.db.Exec(query, maximumValue)
+	_, err := repo.DB.Exec(query, maximumValue)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func (repo *PostgresRepo) SetMaximumValue(maximumValue int64) error {
 
 func (repo *PostgresRepo) SetStepValue(stepValue int64) error {
 	query := "UPDATE incrementer SET step_value = $1"
-	_, err := repo.db.Exec(query, stepValue)
+	_, err := repo.DB.Exec(query, stepValue)
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func (repo *PostgresRepo) SetStepValue(stepValue int64) error {
 
 func (repo *PostgresRepo) SetParams(maximumValue, stepValue int64) error {
 	query := "UPDATE incrementer SET maximum_value = $1, step_value = $2"
-	_, err := repo.db.Exec(query, maximumValue, stepValue)
+	_, err := repo.DB.Exec(query, maximumValue, stepValue)
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func (repo *PostgresRepo) SetParams(maximumValue, stepValue int64) error {
 
 func (repo *PostgresRepo) SetMaximumValueAndZeroNumber(maximumValue int64) error {
 	query := "UPDATE incrementer SET maximum_value = $1, num = $2"
-	_, err := repo.db.Exec(query, maximumValue, 0)
+	_, err := repo.DB.Exec(query, maximumValue, 0)
 	if err != nil {
 		return err
 	}
