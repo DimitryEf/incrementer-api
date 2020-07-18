@@ -1,4 +1,4 @@
-package server
+package service
 
 import (
 	"github.com/DimitryEf/incrementer-api/api"
@@ -14,23 +14,23 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 )
 
-// Server - структура gRPC-сервера инкрементора
-type Server struct {
+// IncService - структура gRPC-сервера инкрементора
+type IncService struct {
 	config *config.Config
 	api    *api.Api
 	server *grpc.Server
 }
 
-// NewServer - конструктор gRPC-сервера
-func NewServer(config *config.Config, api *api.Api) *Server {
-	return &Server{
+// NewIncService - конструктор gRPC-сервера
+func NewIncService(config *config.Config, api *api.Api) *IncService {
+	return &IncService{
 		config: config,
 		api:    api,
 	}
 }
 
 // Run - запуск сервера
-func (s *Server) Run() {
+func (s *IncService) Run() {
 	lis, err := net.Listen("tcp", s.config.Port)
 	if err != nil {
 		s.config.Logger.Log.Fatal(err)
@@ -56,7 +56,7 @@ func (s *Server) Run() {
 }
 
 // ReadyToStop - отслеживание сигналов OS для Graceful shutdown
-func (s *Server) ReadyToStop() {
+func (s *IncService) ReadyToStop() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM) // Отлавливаем в канал interrupt сигналы os.Interrupt и syscall.SIGTERM
 

@@ -6,17 +6,19 @@ package config
 
 // Config - структура с конфигурацией сервиса
 type Config struct {
-	DBConnString string
-	Logger       *Logger
-	Host         string
-	Port         string
+	DBConnString    string
+	Logger          *Logger
+	Host            string
+	Port            string
+	HealthCheckPort string
 }
 
 func NewConfig(log *Logger) *Config {
 	return &Config{
-		DBConnString: "port=5432 host=localhost user=postgres password=soul dbname=postgres sslmode=disable",
-		Logger:       log,
-		Host:         "",
-		Port:         ":8080",
+		DBConnString:    "port=5432 host=localhost user=postgres password=soul dbname=postgres sslmode=disable",
+		Logger:          log,
+		Host:            "",
+		Port:            ":8080",
+		HealthCheckPort: ":8081",
 	}
 }

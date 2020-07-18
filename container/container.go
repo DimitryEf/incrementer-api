@@ -4,7 +4,7 @@ import (
 	"github.com/DimitryEf/incrementer-api/api"
 	"github.com/DimitryEf/incrementer-api/config"
 	"github.com/DimitryEf/incrementer-api/repo"
-	"github.com/DimitryEf/incrementer-api/server"
+	"github.com/DimitryEf/incrementer-api/service"
 	"github.com/DimitryEf/incrementer-api/tool"
 	"github.com/DimitryEf/incrementer-api/usecase"
 	"go.uber.org/dig"
@@ -23,7 +23,7 @@ func BuildContainer() *dig.Container {
 	exitIfErr(container.Provide(repo.NewPostgresRepo))
 	exitIfErr(container.Provide(usecase.NewIncrementer))
 	exitIfErr(container.Provide(api.NewGrpcApi))
-	exitIfErr(container.Provide(server.NewServer))
+	exitIfErr(container.Provide(service.NewIncService))
 
 	return container
 }
@@ -48,15 +48,17 @@ func Execute() {
 
 	// DI вручную, без использования dig
 	logger := config.NewLogger()
-	config := config.NewConfig(logger)
-	db, err := tool.NewDbConnection(config)
+	cfg := config.NewConfig(logger)
+	db, err := tool.NewDbConnection(cfg)
 	if err != nil {
 		logger.Log.Fatal(err)
 	}
 	repo := repo.NewPostgresRepo(db)
 	inc := usecase.NewIncrementer(repo)
 	api := api.NewGrpcApi(inc)
-	server := server.NewServer(config, api)
-	go server.Run()
-	server.ReadyToStop()
+	incServ := service.NewIncService(cfg, api)
+	go incServ.Run()
+	healthCheckService := service.NewHealthCheckService(cfg)
+	go healthCheckService.Run()
+	incServ.ReadyToStop()
 }
