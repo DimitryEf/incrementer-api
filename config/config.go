@@ -15,7 +15,8 @@ type Config struct {
 
 func NewConfig(log *Logger) *Config {
 	return &Config{
-		DBConnString:    "port=5432 host=localhost user=postgres password=soul dbname=postgres sslmode=disable",
+		//DBConnString:    "port=5432 host=localhost user=postgres password=soul dbname=postgres sslmode=disable",
+		DBConnString:    "port=5432 host=db user=postgres password=mysecretpassword dbname=postgres sslmode=disable",
 		Logger:          log,
 		Host:            "",
 		Port:            ":8080",

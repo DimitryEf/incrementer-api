@@ -5,6 +5,7 @@ import (
 	"github.com/DimitryEf/incrementer-api/config"
 	_ "github.com/lib/pq"
 	"sync"
+	"time"
 )
 
 // DbConnection - синглтон подключения к базе данных
@@ -25,14 +26,18 @@ func NewDbConnection(config *config.Config) (*DbConnection, error) {
 	var err error
 	var db *sql.DB
 	once.Do(func() {
+		config.Logger.Log.Info("Waiting 10 s...")
+		time.Sleep(10 * time.Second)
 		// Настраиваем подключение к базе данных
 		db, err = sql.Open("postgres", config.DBConnString)
 		if err != nil {
+			config.Logger.Log.Infof("Error db open %v", err)
 			return
 		}
 		// Подключаемся к базе данных
 		err = db.Ping()
 		if err != nil {
+			config.Logger.Log.Infof("Error db ping %v", err)
 			return
 		}
 		// Создаем таблицу incrementer, если она еще не существует
