@@ -9,8 +9,12 @@ services:
       - "5433:5432"
 
 
+
   incrementer:
-    image: incrementer-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+
     ports:
       - "8080:8080"
       - "8081:8081"

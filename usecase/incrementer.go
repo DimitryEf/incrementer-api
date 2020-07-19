@@ -118,10 +118,10 @@ func (inc *Incrementer) SetStepValue(stepValue int64) error {
 	return nil
 }
 
-// SetParams - установка параметров инкрементра: максимальное значение и шаг инкрементора
+// SetParams - установка параметров инкрементора: максимальное значение и шаг инкрементора
 func (inc *Incrementer) SetParams(maximumValue, stepValue int64) error {
 	// Проверка входных параметров
-	if maximumValue < stepValue {
+	if maximumValue != 0 && maximumValue < stepValue {
 		return ErrMaximumLessThenStepValue
 	}
 	if maximumValue < 0 {
@@ -137,24 +137,58 @@ func (inc *Incrementer) SetParams(maximumValue, stepValue int64) error {
 		return err
 	}
 
-	// Проверка значения по отношению к максимуму
-	if num > maximumValue {
-		err = inc.Repo.SetParams(maximumValue, stepValue)
-		if err != nil {
-			return err
+	// Если оба параметра ненулевые, то применяем метод SetParams
+	if maximumValue != 0 && stepValue != 0 {
+		// Проверка значения по отношению к максимуму
+		if num > maximumValue {
+			err = inc.Repo.SetParams(maximumValue, stepValue)
+			if err != nil {
+				return err
+			}
+			err = inc.Repo.SetNumber(0)
+			if err != nil {
+				return err
+			}
+			return nil
 		}
-		err = inc.Repo.SetNumber(0)
+		// Установка параметра
+		err = inc.Repo.SetParams(maximumValue, stepValue)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
 
-	// Установка параметров
-	err = inc.Repo.SetParams(maximumValue, stepValue)
-	if err != nil {
-		return err
+	//Если параметр stepValue нулевой, то меняем только параметр maximumValue
+	if stepValue == 0 {
+		if num > maximumValue {
+			err = inc.Repo.SetMaximumValue(maximumValue)
+			if err != nil {
+				return err
+			}
+			err = inc.Repo.SetNumber(0)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		// Установка параметра
+		err = inc.Repo.SetMaximumValue(maximumValue)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	return nil
+
+	//Если параметр maximumValue нулевой, то меняем только параметр stepValue
+	if maximumValue == 0 {
+		err = inc.Repo.SetStepValue(stepValue)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	return errors.New("unknown error")
 
 }
