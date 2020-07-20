@@ -56,12 +56,12 @@ func TestIncrementerBasicRequests(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error on clear db: %v", err)
 	}
-	/*defer func() {
+	defer func() {
 		err := clearDB()
 		if err != nil {
 			t.Fatalf("error on clear db: %v", err)
 		}
-	}()*/
+	}()
 
 	// Предварительная настройка клиента
 	opts := []grpc.DialOption{

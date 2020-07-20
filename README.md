@@ -9,5 +9,8 @@ gRPC сервис c процедурами:
 ### Запуск тестов 
 
 ```
+docker-compose build
+docker-compose up
 go test -v ./test
+docker compose down
 ```
