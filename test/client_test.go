@@ -7,12 +7,37 @@ import (
 	"github.com/DimitryEf/incrementer-api/api"
 	"github.com/DimitryEf/incrementer-api/tool"
 	"google.golang.org/grpc"
+	"io/ioutil"
+	"net/http"
 	"testing"
 
 	_ "github.com/lib/pq"
 )
 
+func TestHealthCheck(t *testing.T) {
+	want := `{"alive": true}`
+	client := &http.Client{}
+
+	req, err := http.NewRequest(http.MethodGet, "http://localhost:8081/health-check", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := string(body)
+	if got != want {
+		t.Fatalf("got %v; want %v", got, want)
+	}
+}
+
 func clearDB() error {
+	//Порт указан в docker-compose.yml
 	db, err := sql.Open("postgres", "port=5433 host=localhost user=postgres password=mysecretpassword dbname=postgres sslmode=disable")
 	if err != nil {
 		return err
